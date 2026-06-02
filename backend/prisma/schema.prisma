@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Customer {
+
+  id        Int      @id @default(autoincrement())
+
+  name      String
+
+  phone     String
+
+  address   String?
+
+  package   String
+
+  bill      Int
+
+  status    String   @default("ACTIVE")
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  billings  Billing[]
+
+}
+
+model Billing {
+
+  id          Int      @id @default(autoincrement())
+
+  customerId  Int
+
+  amount      Int
+
+  dueDate     DateTime
+
+  status      String   @default("UNPAID")
+
+  paidAt      DateTime?
+
+  createdAt   DateTime @default(now())
+
+  customer    Customer @relation(fields: [customerId], references: [id])
+
+}
+
+model Voucher {
+
+  id          Int      @id @default(autoincrement())
+
+  code        String   @unique
+
+  packageName String
+
+  duration    String
+
+  price       Int
+
+  status      String   @default("ACTIVE")
+
+  createdAt   DateTime @default(now())
+
+}
+
+model Setting {
+
+  id              Int      @id @default(autoincrement())
+
+  ispName         String
+
+  mikrotikHost    String?
+
+  mikrotikUser    String?
+
+  mikrotikPass    String?
+
+  whatsappGateway String?
+
+  smtpHost        String?
+
+  smtpUser        String?
+
+  smtpPass        String?
+
+  logo            String?
+
+  createdAt       DateTime @default(now())
+
+}
