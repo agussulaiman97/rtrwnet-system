@@ -20,6 +20,7 @@ export default function AppRouter() {
   return (
 
     <BrowserRouter
+  basename="/billing"
   future={{
     v7_startTransition: true,
     v7_relativeSplatPath: true,
