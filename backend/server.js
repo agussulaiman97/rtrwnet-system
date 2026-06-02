@@ -19,6 +19,7 @@ const reportRoutes = require('./routes/reportRoutes')
 const settingsRoutes = require('./routes/settingsRoutes')
 const mikrotikRoutes = require('./routes/mikrotikRoutes')
 const billingRoutes = require('./routes/billingRoutes')
+const packageRoutes = require('./routes/packageRoutes')
 
 /*
 |--------------------------------------------------------------------------
@@ -38,7 +39,11 @@ app.use(cors())
 
 app.use(express.json())
 
-app.use(express.urlencoded({ extended: true }))
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+)
 
 /*
 |--------------------------------------------------------------------------
@@ -47,15 +52,32 @@ app.use(express.urlencoded({ extended: true }))
 */
 
 app.use('/api/customers', customerRoutes)
+
 app.use('/api/auth', authRoutes)
+
 app.use('/api/dashboard', dashboardRoutes)
+
 app.use('/api/monitoring', monitoringRoutes)
+
 app.use('/api/routers', routerRoutes)
+
 app.use('/api/vouchers', voucherRoutes)
+
 app.use('/api/reports', reportRoutes)
+
 app.use('/api/settings', settingsRoutes)
+
 app.use('/api/mikrotik', mikrotikRoutes)
+
 app.use('/api/billings', billingRoutes)
+
+/*
+|--------------------------------------------------------------------------
+| PACKAGE MANAGEMENT
+|--------------------------------------------------------------------------
+*/
+
+app.use('/api/packages', packageRoutes)
 
 /*
 |--------------------------------------------------------------------------
@@ -113,6 +135,8 @@ app.use((req, res) => {
 
     message: 'API Route Not Found',
 
+    path: req.originalUrl,
+
   })
 
 })
@@ -125,7 +149,7 @@ app.use((req, res) => {
 
 app.use((error, req, res, next) => {
 
-  console.log('GLOBAL ERROR =>', error)
+  console.error('GLOBAL ERROR =>', error)
 
   res.status(500).json({
 
@@ -143,21 +167,23 @@ app.use((error, req, res, next) => {
 |--------------------------------------------------------------------------
 */
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 4000
 
 app.listen(PORT, () => {
 
   console.log(`
-
 ========================================
 RTRWNET BACKEND RUNNING
 ========================================
 PORT : ${PORT}
 URL  : http://localhost:${PORT}
-HEALTH CHECK :
-http://localhost:${PORT}/health
-========================================
 
-  `)
+HEALTH CHECK
+http://localhost:${PORT}/health
+
+PACKAGES API
+http://localhost:${PORT}/api/packages
+========================================
+`)
 
 })
