@@ -97,13 +97,13 @@ export default function Monitoring() {
 
   return (
 
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8 p-4 md:p-0">
 
       {/* HEADER */}
 
       <div>
 
-        <h1 className="text-5xl font-bold">
+        <h1 className="text-3xl md:text-5xl font-bold">
 
           Monitoring Realtime
 
@@ -125,7 +125,7 @@ export default function Monitoring() {
 
           <div>
 
-            <h2 className="text-3xl font-bold">
+            <h2 className="text-2xl md:text-3xl font-bold">
 
               {monitoring.routerName}
 
@@ -175,7 +175,7 @@ export default function Monitoring() {
                 CPU Usage
               </p>
 
-              <h2 className="text-5xl font-bold mt-3">
+              <h2 className="text-3xl md:text-5xl font-bold mt-3">
 
                 {monitoring.cpuUsage}%
 
@@ -204,7 +204,7 @@ export default function Monitoring() {
                 RAM Usage
               </p>
 
-              <h2 className="text-5xl font-bold mt-3">
+              <h2 className="text-3xl md:text-5xl font-bold mt-3">
 
                 {monitoring.ramUsage}%
 
@@ -233,7 +233,7 @@ export default function Monitoring() {
                 Online Users
               </p>
 
-              <h2 className="text-5xl font-bold mt-3">
+              <h2 className="text-3xl md:text-5xl font-bold mt-3">
 
                 {monitoring.onlineUsers}
 
@@ -262,7 +262,7 @@ export default function Monitoring() {
                 Offline Users
               </p>
 
-              <h2 className="text-5xl font-bold mt-3 text-red-500">
+              <h2 className="text-3xl md:text-5xl font-bold mt-3 text-red-500">
 
                 {monitoring.offlineUsers}
 
@@ -314,7 +314,7 @@ export default function Monitoring() {
 
           </div>
 
-          <h1 className="text-6xl font-bold text-blue-500">
+          <h1 className="text-3xl md:text-6xl font-bold text-blue-500">
 
             {monitoring.downloadTraffic}
 
@@ -351,7 +351,7 @@ export default function Monitoring() {
 
           </div>
 
-          <h1 className="text-6xl font-bold text-green-500">
+          <h1 className="text-3xl md:text-6xl font-bold text-green-500">
 
             {monitoring.uploadTraffic}
 
@@ -374,7 +374,7 @@ export default function Monitoring() {
 
           <div>
 
-            <h2 className="text-3xl font-bold">
+            <h2 className="text-2xl md:text-3xl font-bold">
 
               Router Information
 

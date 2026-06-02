@@ -500,7 +500,7 @@ export default function Customers() {
 
       {/* TABLE CARD */}
 
-      <div className="bg-white rounded-3xl shadow p-8">
+      <div className="bg-white rounded-3xl shadow p-5 md:p-8">
 
         {/* TOP */}
 
@@ -701,7 +701,7 @@ transition
 
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-5">
 
-          <div className="bg-white rounded-3xl w-full max-w-2xl p-8">
+          <div className="bg-white rounded-3xl w-full max-w-2xl p-5 md:p-8">
 
             {/* HEADER */}
 
