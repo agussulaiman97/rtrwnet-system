@@ -362,7 +362,7 @@ export default function Customers() {
 
       <div className="mb-10">
 
-        <h1 className="text-5xl font-bold text-slate-900">
+        <h1 className="text-3xl md:text-5xl font-bold text-slate-900">
 
           Customer Management
 
@@ -392,7 +392,7 @@ export default function Customers() {
                 Total Customer
               </p>
 
-              <h2 className="text-5xl font-bold mt-3">
+              <h2 className="text-3xl md:text-5xl font-bold mt-3">
 
                 {totalCustomers}
 
@@ -421,7 +421,7 @@ export default function Customers() {
                 Active
               </p>
 
-              <h2 className="text-5xl font-bold mt-3 text-green-500">
+              <h2 className="text-3xl md:text-5xl font-bold mt-3 text-green-500">
 
                 {activeCustomers}
 
@@ -450,7 +450,7 @@ export default function Customers() {
                 Suspend
               </p>
 
-              <h2 className="text-5xl font-bold mt-3 text-red-500">
+              <h2 className="text-3xl md:text-5xl font-bold mt-3 text-red-500">
 
                 {suspendCustomers}
 
@@ -518,7 +518,22 @@ export default function Customers() {
 
           <button
             onClick={openCreateModal}
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl px-6 py-4 font-semibold flex items-center justify-center gap-2 transition"
+            className="
+w-full
+md:w-auto
+bg-blue-600
+hover:bg-blue-700
+text-white
+rounded-2xl
+px-6
+py-4
+font-semibold
+flex
+items-center
+justify-center
+gap-2
+transition
+"
           >
 
             <Plus size={20} />
@@ -533,7 +548,7 @@ export default function Customers() {
 
         <div className="overflow-auto">
 
-          <table className="w-full min-w-[900px]">
+         <table className="w-full min-w-[700px] md:min-w-[900px]">
 
             <thead>
 

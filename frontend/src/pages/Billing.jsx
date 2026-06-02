@@ -148,13 +148,13 @@ export default function Billing() {
 
   return (
 
-    <div className="p-8">
+    <div className="p-4 md:p-8">
 
       {/* HEADER */}
 
       <div className="mb-10">
 
-        <h1 className="text-5xl font-bold">
+        <h1 className="text-3xl md:text-3xl md:text-5xl font-bold">
           Billing System
         </h1>
 
@@ -166,13 +166,13 @@ export default function Billing() {
 
       {/* STATS */}
 
-      <div className="grid md:grid-cols-4 gap-5 mb-10">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
 
         <div className="bg-white p-6 rounded-3xl shadow">
 
           <p>Total Invoice</p>
 
-          <h2 className="text-5xl font-bold mt-3">
+          <h2 className="text-3xl md:text-5xl font-bold mt-3">
 
             {totalInvoice}
 
@@ -184,7 +184,7 @@ export default function Billing() {
 
           <p>Paid</p>
 
-          <h2 className="text-5xl font-bold mt-3 text-green-500">
+          <h2 className="text-3xl md:text-5xl font-bold mt-3 text-green-500">
 
             {paid}
 
@@ -196,7 +196,7 @@ export default function Billing() {
 
           <p>Unpaid</p>
 
-          <h2 className="text-5xl font-bold mt-3 text-orange-500">
+          <h2 className="text-3xl md:text-5xl font-bold mt-3 text-orange-500">
 
             {unpaid}
 
@@ -208,7 +208,7 @@ export default function Billing() {
 
           <p>Overdue</p>
 
-          <h2 className="text-5xl font-bold mt-3 text-red-500">
+          <h2 className="text-3xl md:text-5xl font-bold mt-3 text-red-500">
 
             {overdue}
 
@@ -226,7 +226,16 @@ export default function Billing() {
 
           <button
             onClick={generateInvoice}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-2xl"
+            className="
+w-full
+md:w-auto
+bg-blue-600
+hover:bg-blue-700
+text-white
+px-6
+py-4
+rounded-2xl
+"
           >
 
             Generate Invoice
@@ -237,7 +246,7 @@ export default function Billing() {
 
         <div className="overflow-auto">
 
-          <table className="w-full">
+          <table className="w-full min-w-[800px]">
 
             <thead>
 
