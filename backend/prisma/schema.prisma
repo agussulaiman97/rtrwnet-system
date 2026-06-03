@@ -8,26 +8,49 @@ datasource db {
 }
 
 model Customer {
-  id        Int      @id @default(autoincrement())
-  name      String
-  phone     String
-  address   String?
-  package   String
-  bill      Int
-  status    String   @default("ACTIVE")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
-  billings  Billing[]
+  id         Int      @id @default(autoincrement())
+
+  name       String
+
+  phone      String
+
+  address    String?
+
+  packageId  Int?
+
+  bill       Int
+
+  status     String   @default("ACTIVE")
+
+  createdAt  DateTime @default(now())
+
+  updatedAt  DateTime @updatedAt
+
+  packageRel Package? @relation(
+    fields: [packageId],
+    references: [id]
+  )
+
+  billings Billing[]
 }
 
 model Package {
+
   id          Int      @id @default(autoincrement())
+
   name        String
+
   speed       String
+
   price       Int
+
   description String?
+
+  customers   Customer[]
+
   createdAt   DateTime @default(now())
+
   updatedAt   DateTime @updatedAt
 }
 
