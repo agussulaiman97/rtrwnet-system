@@ -2,9 +2,26 @@ import { useEffect, useState } from 'react'
 import api from '../services/api'
 import Swal from 'sweetalert2'
 
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  X,
+  Wifi,
+  Wallet,
+  Package
+} from 'lucide-react'
+
 export default function Packages() {
 
   const [packages, setPackages] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  const [showModal, setShowModal] = useState(false)
+
+  const [editId, setEditId] = useState(null)
+
+  const [search, setSearch] = useState('')
 
   const [form, setForm] = useState({
     name: '',
@@ -13,20 +30,24 @@ export default function Packages() {
     description: ''
   })
 
-  const [editId, setEditId] = useState(null)
-
   const getPackages = async () => {
 
     try {
 
+      setLoading(true)
+
       const response =
         await api.get('/packages')
 
-      setPackages(response.data)
+      setPackages(response.data || [])
 
     } catch (error) {
 
       console.log(error)
+
+    } finally {
+
+      setLoading(false)
 
     }
 
@@ -38,9 +59,63 @@ export default function Packages() {
 
   }, [])
 
+  const openCreateModal = () => {
+
+    setEditId(null)
+
+    setForm({
+      name: '',
+      speed: '',
+      price: '',
+      description: ''
+    })
+
+    setShowModal(true)
+
+  }
+
+  const openEditModal = (item) => {
+
+    setEditId(item.id)
+
+    setForm({
+      name: item.name || '',
+      speed: item.speed || '',
+      price: item.price || '',
+      description: item.description || ''
+    })
+
+    setShowModal(true)
+
+  }
+
+  const closeModal = () => {
+
+    setShowModal(false)
+
+    setEditId(null)
+
+  }
+
   const savePackage = async () => {
 
     try {
+
+      if (
+        !form.name ||
+        !form.speed ||
+        !form.price
+      ) {
+
+        Swal.fire(
+          'Oops',
+          'Lengkapi data paket',
+          'warning'
+        )
+
+        return
+
+      }
 
       if (editId) {
 
@@ -59,27 +134,22 @@ export default function Packages() {
       }
 
       Swal.fire(
-        'Success',
-        'Package saved',
+        'Berhasil',
+        'Paket berhasil disimpan',
         'success'
       )
 
-      setForm({
-        name: '',
-        speed: '',
-        price: '',
-        description: ''
-      })
+      closeModal()
 
-      setEditId(null)
-
-      getPackages()
+      await getPackages()
 
     } catch (error) {
 
+      console.log(error)
+
       Swal.fire(
         'Error',
-        'Failed save package',
+        'Gagal menyimpan paket',
         'error'
       )
 
@@ -87,179 +157,406 @@ export default function Packages() {
 
   }
 
-  const editPackage = (item) => {
-
-    setEditId(item.id)
-
-    setForm(item)
-
-  }
-
   const deletePackage = async (id) => {
 
     const confirm =
       await Swal.fire({
-        title: 'Delete package?',
+
+        title: 'Hapus Paket?',
+
+        text: 'Data tidak dapat dikembalikan',
+
         icon: 'warning',
-        showCancelButton: true
+
+        showCancelButton: true,
+
+        confirmButtonText: 'Ya Hapus',
+
+        cancelButtonText: 'Batal'
+
       })
 
     if (!confirm.isConfirmed) return
 
-    await api.delete(`/packages/${id}`)
+    try {
 
-    getPackages()
+      await api.delete(`/packages/${id}`)
+
+      Swal.fire(
+        'Berhasil',
+        'Paket berhasil dihapus',
+        'success'
+      )
+
+      await getPackages()
+
+    } catch (error) {
+
+      Swal.fire(
+        'Error',
+        'Gagal menghapus paket',
+        'error'
+      )
+
+    }
 
   }
 
+  const filteredPackages =
+    (packages || []).filter(item =>
+      (item.name || '')
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    )
+
+  const minPrice =
+    packages.length > 0
+      ? Math.min(...packages.map(x => x.price))
+      : 0
+
+  const maxPrice =
+    packages.length > 0
+      ? Math.max(...packages.map(x => x.price))
+      : 0
+
   return (
 
-    <div>
+    <div className="p-4 md:p-8">
 
-      <h1 className="text-3xl font-bold mb-6">
-        Package Management
-      </h1>
+      <div className="mb-10">
 
-      <div className="bg-white p-6 rounded-xl shadow mb-6">
+        <h1 className="text-3xl md:text-5xl font-bold">
 
-        <div className="grid md:grid-cols-4 gap-4">
+          Package Management
 
-          <input
-            className="border p-3 rounded"
-            placeholder="Package Name"
-            value={form.name}
-            onChange={(e)=>
-              setForm({
-                ...form,
-                name:e.target.value
-              })
-            }
-          />
+        </h1>
 
-          <input
-            className="border p-3 rounded"
-            placeholder="Speed"
-            value={form.speed}
-            onChange={(e)=>
-              setForm({
-                ...form,
-                speed:e.target.value
-              })
-            }
-          />
+        <p className="text-slate-500 mt-2">
 
-          <input
-            className="border p-3 rounded"
-            placeholder="Price"
-            value={form.price}
-            onChange={(e)=>
-              setForm({
-                ...form,
-                price:e.target.value
-              })
-            }
-          />
+          Kelola Paket Internet RT/RW Net
 
-          <input
-            className="border p-3 rounded"
-            placeholder="Description"
-            value={form.description}
-            onChange={(e)=>
-              setForm({
-                ...form,
-                description:e.target.value
-              })
-            }
-          />
+        </p>
+
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-5 mb-10">
+
+        <div className="bg-white rounded-3xl shadow p-6">
+
+          <div className="flex justify-between">
+
+            <div>
+
+              <p className="text-slate-500">
+                Total Paket
+              </p>
+
+              <h2 className="text-4xl font-bold mt-3">
+                {packages.length}
+              </h2>
+
+            </div>
+
+            <Package
+              size={50}
+              className="text-blue-500"
+            />
+
+          </div>
 
         </div>
 
-        <button
-          onClick={savePackage}
-          className="mt-4 bg-blue-600 text-white px-5 py-3 rounded"
-        >
-          {editId
-            ? 'Update Package'
-            : 'Add Package'}
-        </button>
+        <div className="bg-white rounded-3xl shadow p-6">
+
+          <div className="flex justify-between">
+
+            <div>
+
+              <p className="text-slate-500">
+                Paket Termurah
+              </p>
+
+              <h2 className="text-3xl font-bold mt-3 text-green-500">
+                Rp {minPrice.toLocaleString()}
+              </h2>
+
+            </div>
+
+            <Wifi
+              size={50}
+              className="text-green-500"
+            />
+
+          </div>
+
+        </div>
+
+        <div className="bg-white rounded-3xl shadow p-6">
+
+          <div className="flex justify-between">
+
+            <div>
+
+              <p className="text-slate-500">
+                Paket Termahal
+              </p>
+
+              <h2 className="text-3xl font-bold mt-3 text-blue-500">
+                Rp {maxPrice.toLocaleString()}
+              </h2>
+
+            </div>
+
+            <Wallet
+              size={50}
+              className="text-blue-500"
+            />
+
+          </div>
+
+        </div>
 
       </div>
 
-      <div className="bg-white rounded-xl shadow overflow-auto">
+      <div className="bg-white rounded-3xl shadow p-6">
 
-        <table className="w-full">
+        <div className="flex flex-col md:flex-row gap-4 justify-between mb-6">
 
-          <thead>
+          <input
+            type="text"
+            placeholder="Cari paket..."
+            value={search}
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
+            className="border rounded-2xl px-5 py-4 w-full md:w-[400px]"
+          />
 
-            <tr className="border-b">
+          <button
+            onClick={openCreateModal}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-2xl flex items-center gap-2"
+          >
 
-              <th className="p-3">Name</th>
+            <Plus size={20} />
 
-              <th>Speed</th>
+            Tambah Paket
 
-              <th>Price</th>
+          </button>
 
-              <th>Description</th>
+        </div>
 
-              <th>Action</th>
+        <div className="overflow-x-auto">
 
-            </tr>
+          <table className="w-full min-w-[900px]">
 
-          </thead>
+            <thead>
 
-          <tbody>
+              <tr className="border-b">
 
-            {packages.map(item => (
+                <th className="text-left py-4">
+                  Nama
+                </th>
 
-              <tr
-                key={item.id}
-                className="border-b"
-              >
+                <th className="text-left py-4">
+                  Speed
+                </th>
 
-                <td className="p-3">
-                  {item.name}
-                </td>
+                <th className="text-left py-4">
+                  Harga
+                </th>
 
-                <td>
-                  {item.speed}
-                </td>
+                <th className="text-left py-4">
+                  Deskripsi
+                </th>
 
-                <td>
-                  Rp {item.price}
-                </td>
-
-                <td>
-                  {item.description}
-                </td>
-
-                <td>
-
-                  <button
-                    onClick={() => editPackage(item)}
-                    className="bg-yellow-500 text-white px-3 py-1 rounded mr-2"
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    onClick={() => deletePackage(item.id)}
-                    className="bg-red-500 text-white px-3 py-1 rounded"
-                  >
-                    Delete
-                  </button>
-
-                </td>
+                <th className="text-left py-4">
+                  Aksi
+                </th>
 
               </tr>
 
-            ))}
+            </thead>
 
-          </tbody>
+            <tbody>
 
-        </table>
+              {loading ? (
+
+                <tr>
+
+                  <td
+                    colSpan="5"
+                    className="text-center py-10"
+                  >
+                    Loading...
+                  </td>
+
+                </tr>
+
+              ) : filteredPackages.map(item => (
+
+                <tr
+                  key={item.id}
+                  className="border-b"
+                >
+
+                  <td className="py-5">
+                    {item.name}
+                  </td>
+
+                  <td>
+                    {item.speed}
+                  </td>
+
+                  <td>
+                    Rp {Number(item.price).toLocaleString()}
+                  </td>
+
+                  <td>
+                    {item.description}
+                  </td>
+
+                  <td>
+
+                    <div className="flex gap-2">
+
+                      <button
+                        onClick={() =>
+                          openEditModal(item)
+                        }
+                        className="bg-amber-500 text-white px-4 py-2 rounded-xl"
+                      >
+
+                        <Pencil size={18} />
+
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          deletePackage(item.id)
+                        }
+                        className="bg-red-500 text-white px-4 py-2 rounded-xl"
+                      >
+
+                        <Trash2 size={18} />
+
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
 
       </div>
 
+      {showModal && (
+
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-5">
+
+          <div className="bg-white rounded-3xl p-8 w-full max-w-2xl">
+
+            <div className="flex justify-between items-center mb-8">
+
+              <h2 className="text-3xl font-bold">
+
+                {editId
+                  ? 'Edit Paket'
+                  : 'Tambah Paket'}
+
+              </h2>
+
+              <button onClick={closeModal}>
+                <X size={28} />
+              </button>
+
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-5">
+
+              <input
+                placeholder="Nama Paket"
+                value={form.name}
+                onChange={(e)=>
+                  setForm({
+                    ...form,
+                    name:e.target.value
+                  })
+                }
+                className="border rounded-2xl px-5 py-4"
+              />
+
+              <input
+                placeholder="Speed"
+                value={form.speed}
+                onChange={(e)=>
+                  setForm({
+                    ...form,
+                    speed:e.target.value
+                  })
+                }
+                className="border rounded-2xl px-5 py-4"
+              />
+
+              <input
+                placeholder="Harga"
+                value={form.price}
+                onChange={(e)=>
+                  setForm({
+                    ...form,
+                    price:e.target.value
+                  })
+                }
+                className="border rounded-2xl px-5 py-4"
+              />
+
+              <input
+                placeholder="Deskripsi"
+                value={form.description}
+                onChange={(e)=>
+                  setForm({
+                    ...form,
+                    description:e.target.value
+                  })
+                }
+                className="border rounded-2xl px-5 py-4"
+              />
+
+            </div>
+
+            <div className="flex justify-end gap-3 mt-8">
+
+              <button
+                onClick={closeModal}
+                className="bg-slate-300 px-5 py-3 rounded-2xl"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={savePackage}
+                className="bg-blue-600 text-white px-5 py-3 rounded-2xl"
+              >
+                Save
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
+
     </div>
+
   )
+
 }
