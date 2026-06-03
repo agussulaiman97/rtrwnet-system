@@ -29,27 +29,40 @@ export default function Monitoring() {
   | GET MONITORING
   |--------------------------------------------------------------------------
   */
+const [monitoring,
+  setMonitoring] = useState({})
 
   const getMonitoring = async () => {
 
-    try {
+  try {
 
-      const response =
-        await api.get('/monitoring')
+    const res =
+      await api.get('/monitoring')
 
-      setMonitoring(response.data)
+    setMonitoring(res.data)
 
-    } catch (error) {
+  } catch (err) {
 
-      console.log(error)
-
-    } finally {
-
-      setLoading(false)
-
-    }
+    console.log(err)
 
   }
+
+}
+
+useEffect(() => {
+
+  getMonitoring()
+
+  const interval =
+    setInterval(
+      getMonitoring,
+      5000
+    )
+
+  return () =>
+    clearInterval(interval)
+
+}, [])
 
   /*
   |--------------------------------------------------------------------------
