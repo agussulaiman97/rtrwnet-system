@@ -29,6 +29,8 @@ export default function Customers() {
 
   const [search, setSearch] = useState('')
 
+  const [packages, setPackages] = useState([])
+
   /*
   |--------------------------------------------------------------------------
   | MODAL
@@ -46,14 +48,12 @@ export default function Customers() {
   */
 
   const [form, setForm] = useState({
-
-    name: '',
-    phone: '',
-    address: '',
-    package: '',
-    bill: '',
-
-  })
+  name: '',
+  phone: '',
+  address: '',
+  packageId: '',
+  status: 'ACTIVE'
+})
 
   /*
   |--------------------------------------------------------------------------
@@ -90,6 +90,29 @@ export default function Customers() {
   }
 
   /*
+|--------------------------------------------------------------------------
+| GET PACKAGES
+|--------------------------------------------------------------------------
+*/
+
+const getPackages = async () => {
+
+  try {
+
+    const response =
+      await api.get('/packages')
+
+    setPackages(response.data || [])
+
+  } catch (error) {
+
+    console.log(error)
+
+  }
+
+}
+
+  /*
   |--------------------------------------------------------------------------
   | CREATE CUSTOMER
   |--------------------------------------------------------------------------
@@ -97,56 +120,52 @@ export default function Customers() {
 
   const createCustomer = async () => {
 
-    try {
+  try {
 
-      if (
-        !form.name ||
-        !form.phone ||
-        !form.package ||
-        !form.bill
-      ) {
-
-        Swal.fire({
-          icon: 'warning',
-          title: 'Oops',
-          text: 'Lengkapi form',
-        })
-
-        return
-
-      }
-
-      await api.post('/customers', {
-
-        ...form,
-
-        bill: Number(form.bill),
-
-      })
+    if (
+      !form.name ||
+      !form.phone ||
+      !form.packageId
+    ) {
 
       Swal.fire({
-        icon: 'success',
-        title: 'Berhasil',
-        text: 'Customer berhasil ditambahkan',
+        icon: 'warning',
+        title: 'Oops',
+        text: 'Lengkapi form'
       })
 
-      closeModal()
-
-      getCustomers()
-
-    } catch (error) {
-
-      console.log(error)
-
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Gagal tambah customer',
-      })
+      return
 
     }
 
+    await api.post(
+      '/customers',
+      form
+    )
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Berhasil',
+      text: 'Customer berhasil ditambahkan'
+    })
+
+    closeModal()
+
+    await getCustomers()
+
+  } catch (error) {
+
+    console.log(error)
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Gagal tambah customer'
+    })
+
   }
+
+}
 
   /*
   |--------------------------------------------------------------------------
@@ -156,39 +175,35 @@ export default function Customers() {
 
   const updateCustomer = async () => {
 
-    try {
+  try {
 
-      await api.put(`/customers/${editingId}`, {
+    await api.put(
+      `/customers/${editingId}`,
+      form
+    )
 
-        ...form,
+    Swal.fire({
+      icon: 'success',
+      title: 'Berhasil',
+      text: 'Customer berhasil diupdate'
+    })
 
-        bill: Number(form.bill),
+    closeModal()
+    await getCustomers()
 
-      })
+  } catch (error) {
 
-      Swal.fire({
-        icon: 'success',
-        title: 'Berhasil',
-        text: 'Customer berhasil diupdate',
-      })
+    console.log(error)
 
-      closeModal()
-
-      getCustomers()
-
-    } catch (error) {
-
-      console.log(error)
-
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Gagal update customer',
-      })
-
-    }
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Gagal update customer'
+    })
 
   }
+
+}
 
   /*
   |--------------------------------------------------------------------------
@@ -222,13 +237,13 @@ export default function Customers() {
 
       await api.delete(`/customers/${id}`)
 
-      Swal.fire({
-        icon: 'success',
-        title: 'Berhasil',
-        text: 'Customer berhasil dihapus',
-      })
+Swal.fire({
+  icon: 'success',
+  title: 'Berhasil',
+  text: 'Customer berhasil dihapus',
+})
 
-      getCustomers()
+await getCustomers()
 
     } catch (error) {
 
@@ -256,13 +271,13 @@ export default function Customers() {
 
     setForm({
 
-      name: '',
-      phone: '',
-      address: '',
-      package: '',
-      bill: '',
+  name: '',
+  phone: '',
+  address: '',
+  packageId: '',
+  status: 'ACTIVE'
 
-    })
+})
 
     setShowModal(true)
 
@@ -280,13 +295,13 @@ export default function Customers() {
 
     setForm({
 
-      name: customer.name || '',
-      phone: customer.phone || '',
-      address: customer.address || '',
-      package: customer.package || '',
-      bill: customer.bill || '',
+  name: customer.name || '',
+  phone: customer.phone || '',
+  address: customer.address || '',
+  packageId: customer.packageId || '',
+  status: customer.status || 'ACTIVE'
 
-    })
+})
 
     setShowModal(true)
 
@@ -315,9 +330,9 @@ export default function Customers() {
   const filteredCustomers = (customers || []).filter(
     (item) =>
 
-      item.name
-        ?.toLowerCase()
-        .includes(search.toLowerCase())
+      (item.name || '')
+  .toLowerCase()
+  .includes(search.toLowerCase())
 
   )
 
@@ -350,9 +365,11 @@ export default function Customers() {
 
   useEffect(() => {
 
-    getCustomers()
+  getCustomers()
 
-  }, [])
+  getPackages()
+
+}, [])
 
   return (
 
@@ -481,7 +498,7 @@ export default function Customers() {
 
               <h2 className="text-3xl font-bold mt-3 text-blue-500">
 
-                Rp {totalIncome.toLocaleString()}
+                Rp {(totalIncome || 0).toLocaleString()}
 
               </h2>
 
@@ -632,8 +649,8 @@ transition
                     </td>
 
                     <td className="py-5">
-                      {item.package}
-                    </td>
+  {item.packageRel?.name || '-'}
+</td>
 
                     <td className="py-5">
 
@@ -643,11 +660,28 @@ transition
 
                     <td className="py-5">
 
-                      <span className="bg-green-500 text-white px-4 py-2 rounded-full text-sm font-bold">
+                      <span
+  className={`
 
-                        {item.status}
+    px-4
+    py-2
+    rounded-full
+    text-sm
+    font-bold
+    text-white
 
-                      </span>
+    ${
+      item.status === 'ACTIVE'
+        ? 'bg-green-500'
+        : 'bg-red-500'
+    }
+
+  `}
+>
+
+  {item.status}
+
+</span>
 
                     </td>
 
@@ -756,44 +790,86 @@ transition
               />
 
               <input
-                type="text"
-                placeholder="Address"
-                value={form.address}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    address: e.target.value,
-                  })
-                }
-                className="border rounded-2xl px-5 py-4"
-              />
+  type="text"
+  placeholder="Address"
+  value={form.address}
+  onChange={(e) =>
+    setForm({
+      ...form,
+      address: e.target.value
+    })
+  }
+  className="
+    border
+    rounded-2xl
+    px-5
+    py-4
+    md:col-span-2
+  "
+/>
 
-              <input
-                type="text"
-                placeholder="Package"
-                value={form.package}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    package: e.target.value,
-                  })
-                }
-                className="border rounded-2xl px-5 py-4"
-              />
+              <select
 
-              <input
-                type="number"
-                placeholder="Tagihan"
-                value={form.bill}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    bill: e.target.value,
-                  })
-                }
-                className="border rounded-2xl px-5 py-4 md:col-span-2"
-              />
+  value={form.packageId}
 
+  onChange={(e) =>
+    setForm({
+      ...form,
+      packageId: e.target.value
+    })
+  }
+
+  className="border rounded-2xl px-5 py-4"
+
+>
+
+  <option value="">
+    Pilih Paket
+  </option>
+
+  {(packages || []).map(item => (
+
+    <option
+      key={item.id}
+      value={item.id}
+    >
+
+      {item.name}
+      -
+      {item.speed}
+      -
+      Rp {item.price.toLocaleString()}
+
+    </option>
+
+  ))}
+
+</select>
+
+<select
+
+  value={form.status}
+
+  onChange={(e) =>
+    setForm({
+      ...form,
+      status: e.target.value
+    })
+  }
+
+  className="border rounded-2xl px-5 py-4"
+
+>
+
+  <option value="ACTIVE">
+    ACTIVE
+  </option>
+
+  <option value="SUSPEND">
+    SUSPEND
+  </option>
+
+</select>
             </div>
 
             {/* FOOTER */}

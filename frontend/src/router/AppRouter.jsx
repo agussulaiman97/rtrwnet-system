@@ -14,7 +14,7 @@ import Billing from '../pages/Billing'
 import Voucher from '../pages/Voucher'
 import Reports from '../pages/Reports'
 import Settings from '../pages/Settings'
-
+import Packages from '../pages/Packages'
 export default function AppRouter() {
 
   return (
@@ -37,7 +37,10 @@ export default function AppRouter() {
             path="customers"
             element={<Customers />}
           />
-
+          <Route
+          path="packages"
+           element={<Packages />}
+          />
           <Route
             path="monitoring"
             element={<Monitoring />}

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
 
 import {
-  FaHome,
+ FaHome,
   FaUsers,
   FaWifi,
   FaServer,
@@ -10,9 +10,9 @@ import {
   FaTicketAlt,
   FaChartBar,
   FaCog,
-  FaBox,
   FaBars,
   FaTimes,
+  FaBoxOpen
 } from 'react-icons/fa'
 
 export default function MainLayout() {
@@ -34,7 +34,7 @@ export default function MainLayout() {
     {
   name: 'Packages',
   path: '/packages',
-  icon: <FaBox />,
+  icon: <FaBoxOpen  />,
 },
     {
       name: 'Monitoring',
