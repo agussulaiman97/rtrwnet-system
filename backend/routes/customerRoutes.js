@@ -46,7 +46,6 @@ router.get('/', async (req, res) => {
 | CREATE CUSTOMER
 |--------------------------------------------------------------------------
 */
-
 router.post('/', async (req, res) => {
 
   try {
@@ -92,20 +91,6 @@ router.post('/', async (req, res) => {
     res.status(500).json({
       error: 'Create customer failed',
       message: error.message
-    })
-
-  }
-
-})
-
-    res.json(customer)
-
-  } catch (error) {
-
-    console.log(error)
-
-    res.status(500).json({
-      error: 'Create customer failed'
     })
 
   }
