@@ -14,13 +14,18 @@ router.get('/', async (req, res) => {
 
   try {
 
-    const customers = await prisma.customer.findMany({
+    const customers =
+      await prisma.customer.findMany({
 
-      orderBy: {
-        id: 'desc',
-      },
+        include: {
+          packageRel: true
+        },
 
-    })
+        orderBy: {
+          id: 'desc'
+        }
+
+      })
 
     res.json(customers)
 
@@ -29,7 +34,7 @@ router.get('/', async (req, res) => {
     console.log(error)
 
     res.status(500).json({
-      error: 'Failed get customers',
+      error: 'Failed get customers'
     })
 
   }
@@ -47,34 +52,36 @@ router.post('/', async (req, res) => {
   try {
 
     const {
-
       name,
       phone,
       address,
-      package: customerPackage,
-      bill,
-
+      packageId
     } = req.body
 
-    const customer = await prisma.customer.create({
+    const selectedPackage =
+      await prisma.package.findUnique({
+        where: {
+          id: Number(packageId)
+        }
+      })
 
-      data: {
+    if (!selectedPackage) {
+      return res.status(400).json({
+        error: 'Package not found'
+      })
+    }
 
-        name,
-
-        phone,
-
-        address,
-
-        package: customerPackage,
-
-        bill: Number(bill),
-
-        status: 'ACTIVE',
-
-      },
-
-    })
+    const customer =
+      await prisma.customer.create({
+        data: {
+          name,
+          phone,
+          address,
+          packageId: Number(packageId),
+          bill: selectedPackage.price,
+          status: 'ACTIVE'
+        }
+      })
 
     res.json(customer)
 
@@ -84,6 +91,21 @@ router.post('/', async (req, res) => {
 
     res.status(500).json({
       error: 'Create customer failed',
+      message: error.message
+    })
+
+  }
+
+})
+
+    res.json(customer)
+
+  } catch (error) {
+
+    console.log(error)
+
+    res.status(500).json({
+      error: 'Create customer failed'
     })
 
   }
@@ -103,37 +125,46 @@ router.put('/:id', async (req, res) => {
     const id = Number(req.params.id)
 
     const {
-
       name,
       phone,
       address,
-      package: customerPackage,
-      bill,
-      status,
-
+      packageId,
+      status
     } = req.body
 
-    const customer = await prisma.customer.update({
+    const selectedPackage =
+      await prisma.package.findUnique({
 
-      where: { id },
+        where: {
+          id: Number(packageId)
+        }
 
-      data: {
+      })
 
-        name,
+    const customer =
+      await prisma.customer.update({
 
-        phone,
+        where: {
+          id
+        },
 
-        address,
+        data: {
 
-        package: customerPackage,
+          name,
 
-        bill: Number(bill),
+          phone,
 
-        status,
+          address,
 
-      },
+          packageId: Number(packageId),
 
-    })
+          bill: selectedPackage.price,
+
+          status
+
+        }
+
+      })
 
     res.json(customer)
 
@@ -142,7 +173,7 @@ router.put('/:id', async (req, res) => {
     console.log(error)
 
     res.status(500).json({
-      error: 'Update customer failed',
+      error: 'Update customer failed'
     })
 
   }
@@ -163,7 +194,9 @@ router.delete('/:id', async (req, res) => {
 
     await prisma.customer.delete({
 
-      where: { id },
+      where: {
+        id
+      }
 
     })
 
@@ -171,7 +204,7 @@ router.delete('/:id', async (req, res) => {
 
       success: true,
 
-      message: 'Customer deleted',
+      message: 'Customer deleted'
 
     })
 
@@ -180,7 +213,7 @@ router.delete('/:id', async (req, res) => {
     console.log(error)
 
     res.status(500).json({
-      error: 'Delete customer failed',
+      error: 'Delete customer failed'
     })
 
   }
