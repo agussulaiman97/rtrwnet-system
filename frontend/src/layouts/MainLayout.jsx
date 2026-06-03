@@ -10,6 +10,7 @@ import {
   FaTicketAlt,
   FaChartBar,
   FaCog,
+  FaBox,
   FaBars,
   FaTimes,
 } from 'react-icons/fa'
@@ -30,6 +31,11 @@ export default function MainLayout() {
       path: '/customers',
       icon: <FaUsers />,
     },
+    {
+  name: 'Packages',
+  path: '/packages',
+  icon: <FaBox />,
+},
     {
       name: 'Monitoring',
       path: '/monitoring',
