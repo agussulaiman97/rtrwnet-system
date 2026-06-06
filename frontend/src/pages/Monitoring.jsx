@@ -21,16 +21,24 @@ export default function Monitoring() {
   */
 
   const [loading, setLoading] = useState(true)
-
-  const [monitoring, setMonitoring] = useState(null)
-
+  const [error, setError] = useState('')
   /*
   |--------------------------------------------------------------------------
   | GET MONITORING
   |--------------------------------------------------------------------------
   */
-const [monitoring,
-  setMonitoring] = useState({})
+const [monitoring, setMonitoring] = useState({
+  routerName: '-',
+  routerStatus: 'OFFLINE',
+  cpuUsage: 0,
+  ramUsage: 0,
+  onlineUsers: 0,
+  offlineUsers: 0,
+  downloadTraffic: '0 Mbps',
+  uploadTraffic: '0 Mbps',
+  uptime: '-',
+  lastUpdate: null
+})
 
   const getMonitoring = async () => {
 
@@ -41,28 +49,26 @@ const [monitoring,
 
     setMonitoring(res.data)
 
+    setError('')
+
   } catch (err) {
 
-    console.log(err)
+    console.log('Monitoring Error:', err)
+
+    setError('Router Offline')
+
+    setMonitoring(prev => ({
+      ...prev,
+      routerStatus: 'OFFLINE'
+    }))
+
+  } finally {
+
+    setLoading(false)
 
   }
 
 }
-
-useEffect(() => {
-
-  getMonitoring()
-
-  const interval =
-    setInterval(
-      getMonitoring,
-      5000
-    )
-
-  return () =>
-    clearInterval(interval)
-
-}, [])
 
   /*
   |--------------------------------------------------------------------------
@@ -90,7 +96,7 @@ useEffect(() => {
   |--------------------------------------------------------------------------
   */
 
-  if (loading || !monitoring) {
+  if (loading) {
 
     return (
 
@@ -121,7 +127,17 @@ useEffect(() => {
           Monitoring Realtime
 
         </h1>
+        {
+  error && (
 
+    <div className="mt-3 bg-red-100 text-red-600 px-4 py-2 rounded-lg">
+
+      {error}
+
+    </div>
+
+  )
+}
         <p className="text-slate-500 mt-2">
 
           Monitoring router dan jaringan realtime
@@ -150,9 +166,12 @@ useEffect(() => {
 
               {' '}
 
-              {new Date(
-                monitoring.lastUpdate
-              ).toLocaleTimeString()}
+              {monitoring.lastUpdate
+  ? new Date(
+      monitoring.lastUpdate
+    ).toLocaleTimeString()
+  : '-'
+}
 
             </p>
 
@@ -160,11 +179,15 @@ useEffect(() => {
 
           <div>
 
-            <span className="bg-green-500 text-white px-5 py-3 rounded-full text-sm font-bold">
-
-              {monitoring.routerStatus}
-
-            </span>
+            <span
+  className={`px-5 py-3 rounded-full text-sm font-bold text-white ${
+    monitoring.routerStatus === 'ONLINE'
+      ? 'bg-green-500'
+      : 'bg-red-500'
+  }`}
+>
+  {monitoring.routerStatus}
+</span>
 
           </div>
 
