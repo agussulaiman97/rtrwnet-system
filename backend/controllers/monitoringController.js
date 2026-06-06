@@ -8,22 +8,24 @@ const getMonitoring = async (req, res) => {
 
     conn = await getConnection()
 
-    const resource =
-      await conn.write('/system/resource/print')
-
     const identity =
-      await conn.write('/system/identity/print')
+      await conn.menu('/system/identity').get()
 
-    const pppActive =
-      await conn.write('/ppp/active/print')
+    const resource =
+      await conn.menu('/system/resource').get()
 
-    const interfaces =
-      await conn.write('/interface/print')
+    const activeUsers =
+      await conn.menu('/ppp/active').get()
 
-    const ether1 =
-      interfaces.find(
-        item =>
-          item.name === 'ether1'
+    const router = resource[0]
+
+    const ramUsage =
+      Math.round(
+        (
+          (router.totalMemory - router.freeMemory)
+          /
+          router.totalMemory
+        ) * 100
       )
 
     res.json({
@@ -35,67 +37,24 @@ const getMonitoring = async (req, res) => {
         'ONLINE',
 
       cpuUsage:
-        Number(
-          resource[0]['cpu-load']
-        ),
+        router.cpuLoad || 0,
 
-      ramUsage:
-        Math.round(
-
-          (
-            (
-              Number(
-                resource[0]['total-memory']
-              ) -
-
-              Number(
-                resource[0]['free-memory']
-              )
-
-            )
-
-            /
-
-            Number(
-              resource[0]['total-memory']
-            )
-
-          )
-
-          * 100
-
-        ),
-
-      uptime:
-        resource[0].uptime,
+      ramUsage,
 
       onlineUsers:
-        pppActive.length,
+        activeUsers.length,
 
       offlineUsers:
         0,
 
       downloadTraffic:
-        ether1?.['rx-byte']
-          ? (
-              Number(
-                ether1['rx-byte']
-              ) /
-              1024 /
-              1024
-            ).toFixed(2) + ' MB'
-          : '0 MB',
+        'Realtime Pending',
 
       uploadTraffic:
-        ether1?.['tx-byte']
-          ? (
-              Number(
-                ether1['tx-byte']
-              ) /
-              1024 /
-              1024
-            ).toFixed(2) + ' MB'
-          : '0 MB',
+        'Realtime Pending',
+
+      uptime:
+        router.uptime,
 
       lastUpdate:
         new Date()
@@ -114,18 +73,6 @@ const getMonitoring = async (req, res) => {
         'Failed get monitoring data'
 
     })
-
-  } finally {
-
-    if (conn) {
-
-      try {
-
-        conn.close()
-
-      } catch {}
-
-    }
 
   }
 
