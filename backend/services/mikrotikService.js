@@ -1,20 +1,20 @@
-const { RouterOSAPI } = require('node-routeros')
+const { RouterOSClient } = require('routeros-client')
 
-const getConnection = async () => {
+const client = new RouterOSClient({
 
-  const conn = new RouterOSAPI({
+  host: process.env.MIKROTIK_HOST,
 
-    host: process.env.MIKROTIK_HOST,
+  user: process.env.MIKROTIK_USER,
 
-    user: process.env.MIKROTIK_USER,
+  password: process.env.MIKROTIK_PASS,
 
-    password: process.env.MIKROTIK_PASS,
+  port: Number(process.env.MIKROTIK_PORT || 8728)
 
-    port: process.env.MIKROTIK_PORT || 8728
+})
 
-  })
+async function getConnection() {
 
-  await conn.connect()
+  const conn = await client.connect()
 
   return conn
 

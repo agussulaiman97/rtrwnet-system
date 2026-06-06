@@ -3,14 +3,14 @@ const express = require('express')
 const router = express.Router()
 
 const {
-  getRealtimeData
+  getMonitoring
 } = require(
   '../controllers/monitoringController'
 )
 
 router.get(
   '/',
-  getRealtimeData
+  getMonitoring
 )
 
 module.exports = router
