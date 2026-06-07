@@ -1,28 +1,71 @@
+const { getConnection } = require('../services/mikrotikService')
+
 const getMonitoring = async (req, res) => {
+
+  let conn
 
   try {
 
+    conn = await getConnection()
+
+    const identity =
+      await conn.menu('/system/identity').get()
+
+    const resource =
+      await conn.menu('/system/resource').get()
+
+    let activeUsers = []
+
+    try {
+
+      activeUsers =
+        await conn.menu('/ppp/active').get()
+
+    } catch (e) {}
+
+    const totalMemory =
+      Number(resource?.[0]?.['total-memory'] || 0)
+
+    const freeMemory =
+      Number(resource?.[0]?.['free-memory'] || 0)
+
+    const ramUsage =
+      totalMemory > 0
+        ? Math.round(
+            ((totalMemory - freeMemory) /
+              totalMemory) *
+              100
+          )
+        : 0
+
     res.json({
 
-      routerName: 'Mikrotik',
+      routerName:
+        identity?.[0]?.name || 'MikroTik',
 
       routerStatus: 'ONLINE',
 
-      cpuUsage: 12,
+      cpuUsage:
+        Number(
+          resource?.[0]?.['cpu-load']
+        ) || 0,
 
-      ramUsage: 35,
+      ramUsage,
 
-      onlineUsers: 1,
+      onlineUsers:
+        activeUsers.length,
 
       offlineUsers: 0,
 
-      downloadTraffic: '15 Mbps',
+      uptime:
+        resource?.[0]?.uptime || '-',
 
-      uploadTraffic: '3 Mbps',
+      downloadTraffic: 'Connected',
 
-      uptime: '1d 5h',
+      uploadTraffic: 'Connected',
 
-      lastUpdate: new Date()
+      lastUpdate:
+        new Date()
 
     })
 
@@ -30,20 +73,46 @@ const getMonitoring = async (req, res) => {
 
     console.log(error)
 
-    res.status(500).json({
+    res.json({
 
-      success: false,
+      routerName: 'MikroTik',
 
-      message: 'Monitoring Failed'
+      routerStatus: 'OFFLINE',
+
+      cpuUsage: 0,
+
+      ramUsage: 0,
+
+      onlineUsers: 0,
+
+      offlineUsers: 0,
+
+      uptime: '-',
+
+      downloadTraffic: 'Disconnected',
+
+      uploadTraffic: 'Disconnected',
+
+      lastUpdate: new Date()
 
     })
+
+  } finally {
+
+    if (conn) {
+
+      try {
+
+        conn.close()
+
+      } catch (e) {}
+
+    }
 
   }
 
 }
 
 module.exports = {
-
   getMonitoring
-
 }
