@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
     const billings = await prisma.billing.findMany({
 
       include: {
-        customer: true,
+        Customer: true,
       },
 
       orderBy: {
@@ -50,17 +50,17 @@ router.post('/generate', async (req, res) => {
 
   try {
 
-    const customers = await prisma.customer.findMany()
+    const Customers = await prisma.Customer.findMany()
 
-    for (const customer of customers) {
+    for (const Customer of Customers) {
 
       await prisma.billing.create({
 
         data: {
 
-          customerId: customer.id,
+          CustomerId: Customer.id,
 
-          amount: customer.bill,
+          amount: Customer.bill,
 
           dueDate: new Date(),
 
@@ -131,19 +131,19 @@ router.put('/pay/:id', async (req, res) => {
 
 /*
 |--------------------------------------------------------------------------
-| SUSPEND CUSTOMER
+| SUSPEND Customer
 |--------------------------------------------------------------------------
 */
 
-router.put('/suspend/:customerId', async (req, res) => {
+router.put('/suspend/:CustomerId', async (req, res) => {
 
   try {
 
-    const customerId = Number(req.params.customerId)
+    const CustomerId = Number(req.params.CustomerId)
 
-    const customer = await prisma.customer.update({
+    const Customer = await prisma.Customer.update({
 
-      where: { id: customerId },
+      where: { id: CustomerId },
 
       data: {
 
@@ -153,7 +153,7 @@ router.put('/suspend/:customerId', async (req, res) => {
 
     })
 
-    res.json(customer)
+    res.json(Customer)
 
   } catch (error) {
 
