@@ -1,6 +1,6 @@
 const { getConnection } = require('../services/mikrotikService')
 
-const getMonitoring = async (req, res) => {
+const getPPPSecrets = async (req, res) => {
 
   let conn
 
@@ -8,92 +8,111 @@ const getMonitoring = async (req, res) => {
 
     conn = await getConnection()
 
-    const identity =
-      await conn.menu('/system/identity').get()
+    const secrets =
+      await conn.menu('/ppp/secret').get()
 
-    const resource =
-      await conn.menu('/system/resource').get()
-
-    const router = resource[0]
-
-    const totalMemory =
-      Number(router.totalMemory || 0)
-
-    const freeMemory =
-      Number(router.freeMemory || 0)
-
-    const ramUsage =
-      totalMemory > 0
-        ? Math.round(
-            ((totalMemory - freeMemory) /
-              totalMemory) * 100
-          )
-        : 0
-
-    res.json({
-
-      routerName:
-        identity?.[0]?.name ||
-        'MikroTik',
-
-      routerStatus:
-        'ONLINE',
-
-      cpuUsage:
-        Number(router.cpuLoad || 0),
-
-      ramUsage,
-
-      onlineUsers: 0,
-
-      offlineUsers: 0,
-
-      downloadTraffic:
-        'Connected',
-
-      uploadTraffic:
-        'Connected',
-
-      uptime:
-        router.uptime || '-',
-
-      lastUpdate:
-        new Date()
-
-    })
+    res.json(secrets)
 
   } catch (error) {
 
-    console.log(
-      'MONITORING ERROR:',
-      error
-    )
+    console.log(error)
 
     res.status(500).json({
-
-      success: false,
-
-      message:
-        'Failed get monitoring data'
-
+      error: 'Failed get PPP Secret'
     })
 
   } finally {
 
-    if (conn) {
+    if (conn) conn.close()
 
-      try {
+  }
 
-        conn.close()
+}
 
-      } catch (e) {}
+const disablePPP = async (req, res) => {
 
-    }
+  let conn
+
+  try {
+
+    conn = await getConnection()
+
+    const id = req.params.id
+
+    await conn.write(
+
+      '/ppp/secret/set',
+
+      [
+        `=.id=${id}`,
+        '=disabled=yes'
+      ]
+
+    )
+
+    res.json({
+      success: true
+    })
+
+  } catch (error) {
+
+    console.log(error)
+
+    res.status(500).json({
+      error: 'Disable failed'
+    })
+
+  } finally {
+
+    if (conn) conn.close()
+
+  }
+
+}
+
+const enablePPP = async (req, res) => {
+
+  let conn
+
+  try {
+
+    conn = await getConnection()
+
+    const id = req.params.id
+
+    await conn.write(
+
+      '/ppp/secret/set',
+
+      [
+        `=.id=${id}`,
+        '=disabled=no'
+      ]
+
+    )
+
+    res.json({
+      success: true
+    })
+
+  } catch (error) {
+
+    console.log(error)
+
+    res.status(500).json({
+      error: 'Enable failed'
+    })
+
+  } finally {
+
+    if (conn) conn.close()
 
   }
 
 }
 
 module.exports = {
-  getMonitoring
+  getPPPSecrets,
+  disablePPP,
+  enablePPP
 }
