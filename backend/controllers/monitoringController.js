@@ -14,47 +14,66 @@ const getMonitoring = async (req, res) => {
     const resource =
       await conn.menu('/system/resource').get()
 
-    const activeUsers =
-      await conn.menu('/ppp/active').get()
+    let onlineUsers = 0
+
+    try {
+
+      const activeUsers =
+        await conn.menu('/ppp/active').get()
+
+      onlineUsers =
+        Array.isArray(activeUsers)
+          ? activeUsers.length
+          : 0
+
+    } catch (e) {
+
+      onlineUsers = 0
+
+    }
 
     const router = resource[0]
 
+    const totalMemory =
+      Number(router.totalMemory || 0)
+
+    const freeMemory =
+      Number(router.freeMemory || 0)
+
     const ramUsage =
-      Math.round(
-        (
-          (router.totalMemory - router.freeMemory)
-          /
-          router.totalMemory
-        ) * 100
-      )
+      totalMemory > 0
+        ? Math.round(
+            ((totalMemory - freeMemory) /
+              totalMemory) * 100
+          )
+        : 0
 
     res.json({
 
       routerName:
-        identity[0]?.name || 'MikroTik',
+        identity?.[0]?.name ||
+        'MikroTik',
 
       routerStatus:
         'ONLINE',
 
       cpuUsage:
-        router.cpuLoad || 0,
+        Number(router.cpuLoad || 0),
 
       ramUsage,
 
-      onlineUsers:
-        activeUsers.length,
+      onlineUsers,
 
-      offlineUsers:
-        0,
+      offlineUsers: 0,
 
       downloadTraffic:
-        'Realtime Pending',
+        'Connected',
 
       uploadTraffic:
-        'Realtime Pending',
+        'Connected',
 
       uptime:
-        router.uptime,
+        router.uptime || '-',
 
       lastUpdate:
         new Date()
@@ -63,7 +82,10 @@ const getMonitoring = async (req, res) => {
 
   } catch (error) {
 
-    console.log(error)
+    console.log(
+      'MONITORING ERROR:',
+      error
+    )
 
     res.status(500).json({
 
@@ -73,6 +95,18 @@ const getMonitoring = async (req, res) => {
         'Failed get monitoring data'
 
     })
+
+  } finally {
+
+    if (conn) {
+
+      try {
+
+        conn.close()
+
+      } catch (e) {}
+
+    }
 
   }
 
