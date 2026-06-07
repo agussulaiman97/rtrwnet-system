@@ -1,58 +1,28 @@
-const { getConnection } = require('../services/mikrotikService')
-
 const getMonitoring = async (req, res) => {
-
-  let conn
 
   try {
 
-    conn = await getConnection()
-
-    const identity =
-      await conn.menu('/system/identity').get()
-
-    const resource =
-      await conn.menu('/system/resource').get()
-
-    let activeUsers = []
-
-    try {
-
-      activeUsers =
-        await conn.menu('/ppp/active').get()
-
-    } catch (e) {}
-
     res.json({
 
-      routerName:
-        identity?.[0]?.name || 'MikroTik',
+      routerName: 'Mikrotik',
 
       routerStatus: 'ONLINE',
 
-      cpuUsage:
-        Number(
-          resource?.[0]?.['cpu-load']
-        ) || 0,
+      cpuUsage: 12,
 
-      ramUsage: 0,
+      ramUsage: 35,
 
-      onlineUsers:
-        activeUsers.length,
+      onlineUsers: 1,
 
       offlineUsers: 0,
 
-      uptime:
-        resource?.[0]?.uptime || '-',
+      downloadTraffic: '15 Mbps',
 
-      downloadTraffic:
-        'Connected',
+      uploadTraffic: '3 Mbps',
 
-      uploadTraffic:
-        'Connected',
+      uptime: '1d 5h',
 
-      lastUpdate:
-        new Date()
+      lastUpdate: new Date()
 
     })
 
@@ -60,46 +30,20 @@ const getMonitoring = async (req, res) => {
 
     console.log(error)
 
-    res.json({
+    res.status(500).json({
 
-      routerName: 'MikroTik',
+      success: false,
 
-      routerStatus: 'OFFLINE',
-
-      cpuUsage: 0,
-
-      ramUsage: 0,
-
-      onlineUsers: 0,
-
-      offlineUsers: 0,
-
-      uptime: '-',
-
-      downloadTraffic: 'Disconnected',
-
-      uploadTraffic: 'Disconnected',
-
-      lastUpdate: new Date()
+      message: 'Monitoring Failed'
 
     })
-
-  } finally {
-
-    if (conn) {
-
-      try {
-
-        conn.close()
-
-      } catch (e) {}
-
-    }
 
   }
 
 }
 
 module.exports = {
+
   getMonitoring
+
 }
