@@ -1,25 +1,29 @@
 const express = require('express')
-
 const router = express.Router()
 
 const prisma = require('../utils/prisma')
+
+/*
+|--------------------------------------------------------------------------
+| GET BILLINGS
+|--------------------------------------------------------------------------
+*/
 
 router.get('/', async (req, res) => {
 
   try {
 
-    const billings =
-      await prisma.billing.findMany({
+    const billings = await prisma.billing.findMany({
 
-        include: {
-          Customer: true
-        },
+      include: {
+        Customer: true
+      },
 
-        orderBy: {
-          id: 'desc'
-        }
+      orderBy: {
+        id: 'desc'
+      }
 
-      })
+    })
 
     res.json(billings)
 
@@ -34,6 +38,12 @@ router.get('/', async (req, res) => {
   }
 
 })
+
+/*
+|--------------------------------------------------------------------------
+| GENERATE BILLING
+|--------------------------------------------------------------------------
+*/
 
 router.post('/generate', async (req, res) => {
 
@@ -82,6 +92,12 @@ router.post('/generate', async (req, res) => {
 
 })
 
+/*
+|--------------------------------------------------------------------------
+| PAY BILLING
+|--------------------------------------------------------------------------
+*/
+
 router.put('/pay/:id', async (req, res) => {
 
   try {
@@ -112,40 +128,6 @@ router.put('/pay/:id', async (req, res) => {
 
     res.status(500).json({
       error: 'Payment failed'
-    })
-
-  }
-
-})
-
-router.put('/suspend/:customerId', async (req, res) => {
-
-  try {
-
-    const customerId =
-      Number(req.params.customerId)
-
-    const customer =
-      await prisma.customer.update({
-
-        where: {
-          id: customerId
-        },
-
-        data: {
-          status: 'SUSPEND'
-        }
-
-      })
-
-    res.json(customer)
-
-  } catch (error) {
-
-    console.log(error)
-
-    res.status(500).json({
-      error: 'Suspend failed'
     })
 
   }
