@@ -1,6 +1,6 @@
 const { getConnection } = require('../services/mikrotikService')
 
-const getPPPSecrets = async (req, res) => {
+const getMonitoring = async (req, res) => {
 
   let conn
 
@@ -8,111 +8,98 @@ const getPPPSecrets = async (req, res) => {
 
     conn = await getConnection()
 
-    const secrets =
-      await conn.menu('/ppp/secret').get()
+    const identity =
+      await conn.menu('/system/identity').get()
 
-    res.json(secrets)
+    const resource =
+      await conn.menu('/system/resource').get()
 
-  } catch (error) {
+    let activeUsers = []
 
-    console.log(error)
+    try {
 
-    res.status(500).json({
-      error: 'Failed get PPP Secret'
-    })
+      activeUsers =
+        await conn.menu('/ppp/active').get()
 
-  } finally {
-
-    if (conn) conn.close()
-
-  }
-
-}
-
-const disablePPP = async (req, res) => {
-
-  let conn
-
-  try {
-
-    conn = await getConnection()
-
-    const id = req.params.id
-
-    await conn.write(
-
-      '/ppp/secret/set',
-
-      [
-        `=.id=${id}`,
-        '=disabled=yes'
-      ]
-
-    )
+    } catch (e) {}
 
     res.json({
-      success: true
+
+      routerName:
+        identity?.[0]?.name || 'MikroTik',
+
+      routerStatus: 'ONLINE',
+
+      cpuUsage:
+        Number(
+          resource?.[0]?.['cpu-load']
+        ) || 0,
+
+      ramUsage: 0,
+
+      onlineUsers:
+        activeUsers.length,
+
+      offlineUsers: 0,
+
+      uptime:
+        resource?.[0]?.uptime || '-',
+
+      downloadTraffic:
+        'Connected',
+
+      uploadTraffic:
+        'Connected',
+
+      lastUpdate:
+        new Date()
+
     })
 
   } catch (error) {
 
     console.log(error)
-
-    res.status(500).json({
-      error: 'Disable failed'
-    })
-
-  } finally {
-
-    if (conn) conn.close()
-
-  }
-
-}
-
-const enablePPP = async (req, res) => {
-
-  let conn
-
-  try {
-
-    conn = await getConnection()
-
-    const id = req.params.id
-
-    await conn.write(
-
-      '/ppp/secret/set',
-
-      [
-        `=.id=${id}`,
-        '=disabled=no'
-      ]
-
-    )
 
     res.json({
-      success: true
-    })
 
-  } catch (error) {
+      routerName: 'MikroTik',
 
-    console.log(error)
+      routerStatus: 'OFFLINE',
 
-    res.status(500).json({
-      error: 'Enable failed'
+      cpuUsage: 0,
+
+      ramUsage: 0,
+
+      onlineUsers: 0,
+
+      offlineUsers: 0,
+
+      uptime: '-',
+
+      downloadTraffic: 'Disconnected',
+
+      uploadTraffic: 'Disconnected',
+
+      lastUpdate: new Date()
+
     })
 
   } finally {
 
-    if (conn) conn.close()
+    if (conn) {
+
+      try {
+
+        conn.close()
+
+      } catch (e) {}
+
+    }
 
   }
 
 }
 
 module.exports = {
-  getPPPSecrets,
-  disablePPP,
-  enablePPP
+  getMonitoring
 }

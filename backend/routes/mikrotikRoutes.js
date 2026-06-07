@@ -10,19 +10,23 @@ router.get('/', async (req, res) => {
 
     routerName: 'MikroTik',
 
-    status: 'ONLINE',
+    routerStatus: 'ONLINE',
 
-    uptime: '-',
+    cpuUsage: 0,
 
-    cpu: 0,
-
-    memory: 0,
+    ramUsage: 0,
 
     onlineUsers: 0,
 
-    download: 0,
+    offlineUsers: 0,
 
-    upload: 0
+    uptime: '-',
+
+    downloadTraffic: '0 Mbps',
+
+    uploadTraffic: '0 Mbps',
+
+    lastUpdate: new Date()
 
   })
 

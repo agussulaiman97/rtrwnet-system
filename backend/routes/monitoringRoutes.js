@@ -2,15 +2,11 @@ const express = require('express')
 
 const router = express.Router()
 
-const {
-  getMonitoring
-} = require(
-  '../controllers/monitoringController'
-)
-
-router.get(
-  '/',
-  getMonitoring
-)
+router.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Monitoring OK'
+  })
+})
 
 module.exports = router
