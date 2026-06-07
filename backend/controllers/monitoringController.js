@@ -14,24 +14,6 @@ const getMonitoring = async (req, res) => {
     const resource =
       await conn.menu('/system/resource').get()
 
-    let onlineUsers = 0
-
-    try {
-
-      const activeUsers =
-        await conn.menu('/ppp/active').get()
-
-      onlineUsers =
-        Array.isArray(activeUsers)
-          ? activeUsers.length
-          : 0
-
-    } catch (e) {
-
-      onlineUsers = 0
-
-    }
-
     const router = resource[0]
 
     const totalMemory =
@@ -62,7 +44,7 @@ const getMonitoring = async (req, res) => {
 
       ramUsage,
 
-      onlineUsers,
+      onlineUsers: 0,
 
       offlineUsers: 0,
 
