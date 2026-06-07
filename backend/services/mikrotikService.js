@@ -17,10 +17,7 @@ async function getConnection() {
 
     })
 
-  const conn =
-    await client.connect()
-
-  return conn
+  return await client.connect()
 
 }
 
